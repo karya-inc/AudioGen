@@ -94,8 +94,9 @@ def generate_audio(
         print(f"FAILED\n[ERROR] {note}")
         return None
 
-    _OUTPUT_DIR.mkdir(exist_ok=True)
-    path = _OUTPUT_DIR / f"{row.key}__{row.language}.mp3"
+    lang_dir = _OUTPUT_DIR / row.language
+    lang_dir.mkdir(parents=True, exist_ok=True)
+    path = lang_dir / f"{row.key}.mp3"
     path.write_bytes(audio_bytes)
     print("done")
     return path

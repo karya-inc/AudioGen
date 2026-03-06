@@ -194,9 +194,10 @@ python run.py --csv strings.csv --mode generate-all --dry-run
 Generated audio is saved to:
 ```
 output/
-└── {key}__{language}.mp3
+└── {language}/
+    └── {key}.mp3
 ```
-Example: `output/selected_language_is__Hindi.mp3`
+Example: `output/Hindi/selected_language_is.mp3`
 
 Files are **retained after upload** for manual recovery if needed.
 
@@ -206,9 +207,9 @@ Files are uploaded to:
 ```
 <GOOGLE_DRIVE_FOLDER_ID>/
 └── AudioAssets/
-    └── {key}/
-        ├── selected_language_is__English.mp3
-        ├── selected_language_is__Hindi.mp3
+    └── {language}/
+        ├── selected_language_is.mp3
+        ├── welcome_message.mp3
         └── ...
 ```
 

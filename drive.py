@@ -21,15 +21,15 @@ class DriveUploader:
         # Cache (name, parent_id) → folder_id to avoid redundant API calls per run
         self._folder_cache: dict[tuple[str, str], str] = {}
 
-    def upload(self, local_path: Path, key: str) -> str:
-        """Upload audio to AudioAssets/{key}/ and return a shareable Drive URL.
+    def upload(self, local_path: Path, language: str) -> str:
+        """Upload audio to AudioAssets/{language}/ and return a shareable Drive URL.
 
         Replaces the file if one with the same name already exists, preserving
         the file ID (and therefore the Drive link).
         """
         assets_id = self._get_or_create_folder(_ASSETS_FOLDER, self._root_folder_id)
-        key_folder_id = self._get_or_create_folder(key, assets_id)
-        file_id = self._upsert_file(local_path, key_folder_id)
+        lang_folder_id = self._get_or_create_folder(language, assets_id)
+        file_id = self._upsert_file(local_path, lang_folder_id)
         self._set_public(file_id)
         return f"https://drive.google.com/file/d/{file_id}/view?usp=sharing"
 

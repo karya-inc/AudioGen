@@ -46,7 +46,7 @@ def make_on_success(
 
         # 1. Upload to Google Drive
         try:
-            drive_link = uploader.upload(path, row.key)
+            drive_link = uploader.upload(path, row.language)
         except Exception as e:
             note = f"Drive upload failed: {e}"
             print(f"[ERROR] {row.key} | {row.language}: {note}")
@@ -86,7 +86,7 @@ def retry_errors(
     uploaded, reset = 0, 0
 
     for row in error_rows:
-        path = Path("output") / f"{row.key}__{row.language}.mp3"
+        path = Path("output") / row.language / f"{row.key}.mp3"
 
         if path.exists():
             print(f"[INFO] Re-uploading: {row.key} | {row.language} ...", end=" ", flush=True)
@@ -94,7 +94,7 @@ def retry_errors(
                 print(f"\n[DRY RUN] Would re-upload {path.name} and mark generated")
                 continue
             try:
-                drive_link = uploader.upload(path, row.key)
+                drive_link = uploader.upload(path, row.language)
             except Exception as e:
                 note = f"Drive upload failed: {e}"
                 print(f"FAILED\n[ERROR] {note}")
