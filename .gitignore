@@ -1,0 +1,20 @@
+# Secrets
+.env
+
+# Google service account credentials
+credentials/
+
+# Generated audio files
+output/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+*.egg-info/
+
+# macOS
+.DS_Store

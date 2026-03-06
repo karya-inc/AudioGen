@@ -1,0 +1,14 @@
+voices:
+  English: "<VOICE_ID>"
+  Hindi: "<VOICE_ID>"
+  Kannada: "<VOICE_ID>"
+  Malayalam: "<VOICE_ID>"
+  Tamil: "<VOICE_ID>"
+  Gujarati: "<VOICE_ID>"
+  Odia: "<VOICE_ID>"
+  Bengali: "<VOICE_ID>"
+  Marathi: "<VOICE_ID>"
+  Telugu: "<VOICE_ID>"
+  Punjabi: "<VOICE_ID>"
+  Assamese: "<VOICE_ID>"
+default_voice: "<VOICE_ID>"  # fallback if language not listed
