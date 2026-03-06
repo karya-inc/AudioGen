@@ -66,6 +66,57 @@ def make_on_success(
     return on_success
 
 
+def retry_errors(
+    sheet: AudioTrackerSheet,
+    uploader: DriveUploader,
+    dry_run: bool = False,
+) -> tuple[int, int]:
+    """For every 'error' row:
+    - If output/{key}__{language}.mp3 exists → re-upload to Drive (skip ElevenLabs)
+    - Otherwise → reset to needs_generation for the next normal run
+
+    Returns (uploaded, reset).
+    """
+    error_rows = [r for r in sheet.load_rows().values() if r.status == "error"]
+    if not error_rows:
+        print("[INFO] No rows with error status. Nothing to retry.")
+        return 0, 0
+
+    print(f"[INFO] Found {len(error_rows)} error row(s) to retry.\n")
+    uploaded, reset = 0, 0
+
+    for row in error_rows:
+        path = Path("output") / f"{row.key}__{row.language}.mp3"
+
+        if path.exists():
+            print(f"[INFO] Re-uploading: {row.key} | {row.language} ...", end=" ", flush=True)
+            if dry_run:
+                print(f"\n[DRY RUN] Would re-upload {path.name} and mark generated")
+                continue
+            try:
+                drive_link = uploader.upload(path, row.key)
+            except Exception as e:
+                note = f"Drive upload failed: {e}"
+                print(f"FAILED\n[ERROR] {note}")
+                _write_with_retry(lambda: sheet.set_status(row, "error", notes=note), row)
+                continue
+            ok = _write_with_retry(
+                lambda: sheet.update_result(row, drive_link, "generated"), row
+            )
+            if ok:
+                print(f"done\n[OK]   Uploaded → {drive_link}")
+                uploaded += 1
+        else:
+            print(f"[INFO] No local file for {row.key} | {row.language} — resetting to needs_generation")
+            if not dry_run:
+                _write_with_retry(
+                    lambda: sheet.set_status(row, "needs_generation", notes=""), row
+                )
+                reset += 1
+
+    return uploaded, reset
+
+
 def print_summary(success: int, errors: int, total: int) -> None:
     skipped = total - success - errors
     parts = [f"{success}/{total} generated successfully"]

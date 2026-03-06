@@ -7,7 +7,7 @@ from config import load_config
 from drive import DriveUploader
 from generator import run_batch, run_generate_all, run_one_at_a_time
 from ingestion import ingest_csv
-from pipeline import exit_with_code, make_on_success, print_summary
+from pipeline import exit_with_code, make_on_success, print_summary, retry_errors
 from sheets import AudioTrackerSheet
 
 _MODE_RUNNERS = {
@@ -49,6 +49,14 @@ Examples:
         action="store_true",
         help="Log planned actions without making API calls or sheet writes.",
     )
+    parser.add_argument(
+        "--retry-errors",
+        action="store_true",
+        help=(
+            "Retry all rows with error status. Re-uploads from local output/ if the "
+            "file exists; otherwise resets the row to needs_generation."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -61,6 +69,15 @@ def main():
 
     # ── Sheet (always needed to read current state) ───────────────────────────
     sheet = AudioTrackerSheet(config)
+
+    # ── Retry-errors shortcut ─────────────────────────────────────────────────
+    if args.retry_errors:
+        uploader = None if args.dry_run else DriveUploader(config)
+        uploaded, reset = retry_errors(sheet, uploader, dry_run=args.dry_run)
+        if not args.dry_run:
+            print(f"\n[DONE] {uploaded} re-uploaded, {reset} reset to needs_generation.")
+        exit_with_code(0)
+        return
 
     # ── CSV ingestion (optional) ──────────────────────────────────────────────
     if args.csv:

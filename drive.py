@@ -44,7 +44,13 @@ class DriveUploader:
         )
         results = (
             self._service.files()
-            .list(q=q, fields="files(id)", pageSize=1)
+            .list(
+                q=q,
+                fields="files(id)",
+                pageSize=1,
+                supportsAllDrives=True,
+                includeItemsFromAllDrives=True,
+            )
             .execute()
         )
         files = results.get("files", [])
@@ -59,7 +65,7 @@ class DriveUploader:
             }
             folder = (
                 self._service.files()
-                .create(body=metadata, fields="id")
+                .create(body=metadata, fields="id", supportsAllDrives=True)
                 .execute()
             )
             folder_id = folder["id"]
@@ -73,7 +79,13 @@ class DriveUploader:
         q = f"name='{filename}' and '{parent_id}' in parents and trashed=false"
         results = (
             self._service.files()
-            .list(q=q, fields="files(id)", pageSize=1)
+            .list(
+                q=q,
+                fields="files(id)",
+                pageSize=1,
+                supportsAllDrives=True,
+                includeItemsFromAllDrives=True,
+            )
             .execute()
         )
         existing = results.get("files", [])
@@ -86,12 +98,13 @@ class DriveUploader:
                 fileId=file_id,
                 media_body=media,
                 fields="id",
+                supportsAllDrives=True,
             ).execute()
         else:
             metadata = {"name": filename, "parents": [parent_id]}
             result = (
                 self._service.files()
-                .create(body=metadata, media_body=media, fields="id")
+                .create(body=metadata, media_body=media, fields="id", supportsAllDrives=True)
                 .execute()
             )
             file_id = result["id"]
@@ -104,4 +117,5 @@ class DriveUploader:
             fileId=file_id,
             body={"type": "anyone", "role": "reader"},
             fields="id",
+            supportsAllDrives=True,
         ).execute()
