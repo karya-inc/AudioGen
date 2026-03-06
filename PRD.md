@@ -251,9 +251,9 @@ The committed `voices.yaml` uses `<VOICE_ID>` placeholders for all languages. Re
 
 ### 7.3 Output File Naming
 ```
-{key}__{language}.mp3
+output/{language}/{key}.mp3
 ```
-Example: `selected_language_is__Hindi.mp3`
+Example: `output/Hindi/selected_language_is.mp3`
 
 ---
 
@@ -263,9 +263,9 @@ Example: `selected_language_is__Hindi.mp3`
 ```
 Google Drive/
 └── AudioAssets/
-    └── {key}/
-        ├── selected_language_is__English.mp3
-        ├── selected_language_is__Hindi.mp3
+    └── {language}/
+        ├── selected_language_is.mp3
+        ├── welcome_message.mp3
         └── ...
 ```
 
