@@ -251,9 +251,11 @@ The committed `voices.yaml` uses `<VOICE_ID>` placeholders for all languages. Re
 
 ### 7.3 Output File Naming
 ```
-output/{language}/{key}.mp3
+output/{language}/{iso_code}_{key}.mp3
 ```
-Example: `output/Hindi/selected_language_is.mp3`
+Example: `output/Hindi/hi_selected_language_is.mp3`
+
+ISO 639-1 codes are resolved via the `LANGUAGE_ISO` map in `config.py`. Unknown languages fall back to the first two lowercase characters of the language name.
 
 ---
 
@@ -264,8 +266,8 @@ Example: `output/Hindi/selected_language_is.mp3`
 Google Drive/
 └── AudioAssets/
     └── {language}/
-        ├── selected_language_is.mp3
-        ├── welcome_message.mp3
+        ├── hi_selected_language_is.mp3
+        ├── hi_welcome_message.mp3
         └── ...
 ```
 

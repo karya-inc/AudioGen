@@ -7,6 +7,33 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# ISO 639-1 codes for supported languages
+LANGUAGE_ISO: dict[str, str] = {
+    "English": "en",
+    "Hindi": "hi",
+    "Kannada": "kn",
+    "Malayalam": "ml",
+    "Tamil": "ta",
+    "Gujarati": "gu",
+    "Odia": "or",
+    "Bengali": "bn",
+    "Marathi": "mr",
+    "Telugu": "te",
+    "Punjabi": "pa",
+    "Assamese": "as",
+    "Bhojpuri": "bho",
+}
+
+
+def iso_filename(language: str, key: str) -> str:
+    """Return the canonical audio filename: {iso_code}_{key}.mp3.
+
+    Falls back to the first two lowercase chars of the language name
+    for any language not in LANGUAGE_ISO.
+    """
+    iso = LANGUAGE_ISO.get(language, language.lower()[:2])
+    return f"{iso}_{key}.mp3"
+
 
 @dataclass
 class Config:

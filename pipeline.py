@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 from typing import Callable
 
+from config import iso_filename
 from drive import DriveUploader
 from generator import OnSuccess
 from sheets import AudioTrackerSheet, SheetRow
@@ -86,7 +87,7 @@ def retry_errors(
     uploaded, reset = 0, 0
 
     for row in error_rows:
-        path = Path("output") / row.language / f"{row.key}.mp3"
+        path = Path("output") / row.language / iso_filename(row.language, row.key)
 
         if path.exists():
             print(f"[INFO] Re-uploading: {row.key} | {row.language} ...", end=" ", flush=True)

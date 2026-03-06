@@ -195,9 +195,9 @@ Generated audio is saved to:
 ```
 output/
 └── {language}/
-    └── {key}.mp3
+    └── {iso_code}_{key}.mp3
 ```
-Example: `output/Hindi/selected_language_is.mp3`
+Example: `output/Hindi/hi_selected_language_is.mp3`
 
 Files are **retained after upload** for manual recovery if needed.
 
@@ -208,8 +208,8 @@ Files are uploaded to:
 <GOOGLE_DRIVE_FOLDER_ID>/
 └── AudioAssets/
     └── {language}/
-        ├── selected_language_is.mp3
-        ├── welcome_message.mp3
+        ├── hi_selected_language_is.mp3
+        ├── hi_welcome_message.mp3
         └── ...
 ```
 

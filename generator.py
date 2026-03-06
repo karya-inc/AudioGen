@@ -6,7 +6,7 @@ from typing import Callable
 from elevenlabs.client import ElevenLabs
 from elevenlabs.core import ApiError
 
-from config import Config
+from config import Config, iso_filename
 from sheets import AudioTrackerSheet, SheetRow
 
 _OUTPUT_DIR = Path("output")
@@ -96,7 +96,7 @@ def generate_audio(
 
     lang_dir = _OUTPUT_DIR / row.language
     lang_dir.mkdir(parents=True, exist_ok=True)
-    path = lang_dir / f"{row.key}.mp3"
+    path = lang_dir / iso_filename(row.language, row.key)
     path.write_bytes(audio_bytes)
     print("done")
     return path
