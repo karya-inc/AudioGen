@@ -1,0 +1,81 @@
+import sys
+from pathlib import Path
+from typing import Callable
+
+from drive import DriveUploader
+from generator import OnSuccess
+from sheets import AudioTrackerSheet, SheetRow
+
+
+def _write_with_retry(fn: Callable[[], None], row: SheetRow) -> bool:
+    """Call fn(); if it raises, log and retry once. Returns True on success."""
+    for attempt in range(2):
+        try:
+            fn()
+            return True
+        except Exception as e:
+            if attempt == 0:
+                print(
+                    f"[WARN] Sheet write failed for {row.key} | {row.language}: {e} "
+                    f"— retrying once..."
+                )
+            else:
+                print(
+                    f"[ERROR] Sheet write failed again for {row.key} | {row.language}: {e} "
+                    f"— audio is NOT re-generated; retry the sheet update manually."
+                )
+    return False
+
+
+def make_on_success(
+    sheet: AudioTrackerSheet,
+    uploader: DriveUploader,
+    dry_run: bool = False,
+) -> OnSuccess:
+    """Return the OnSuccess callback that uploads to Drive and updates the sheet.
+
+    Failure behaviour per PRD Section 9:
+    - Drive upload failure  → mark row 'error', retain local mp3, continue
+    - Sheet write failure   → log, retry once; do not re-generate audio
+    """
+
+    def on_success(row: SheetRow, path: Path) -> None:
+        if dry_run:
+            print(f"[DRY RUN] Would upload {path.name} to Drive and mark generated")
+            return
+
+        # 1. Upload to Google Drive
+        try:
+            drive_link = uploader.upload(path, row.key)
+        except Exception as e:
+            note = f"Drive upload failed: {e}"
+            print(f"[ERROR] {row.key} | {row.language}: {note}")
+            print(f"        Local file retained at: {path}")
+            _write_with_retry(
+                lambda: sheet.set_status(row, "error", notes=note), row
+            )
+            return
+
+        # 2. Write Drive link + mark generated
+        ok = _write_with_retry(
+            lambda: sheet.update_result(row, drive_link, "generated"), row
+        )
+        if ok:
+            print(f"[OK]   Uploaded → {drive_link}")
+
+    return on_success
+
+
+def print_summary(success: int, errors: int, total: int) -> None:
+    skipped = total - success - errors
+    parts = [f"{success}/{total} generated successfully"]
+    if errors:
+        parts.append(f"{errors} error(s)")
+    if skipped:
+        parts.append(f"{skipped} skipped")
+    status = "[DONE]" if not errors else "[DONE WITH ERRORS]"
+    print(f"\n{status} {', '.join(parts)}.")
+
+
+def exit_with_code(errors: int) -> None:
+    sys.exit(1 if errors else 0)
